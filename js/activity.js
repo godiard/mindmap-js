@@ -56,9 +56,6 @@ define(function (require) {
 
         // HERE GO YOUR CODE
 
-        var initialData =  {"version": "1", "boxs": [{'globes':[]}]};
-
-
         if (loadTestData) {
             initialData = testData;
         };
@@ -118,7 +115,7 @@ define(function (require) {
         }, false);
 
         // load mindmap files
-        var toonChooser = document.getElementById('mindmap-chooser');
+        var mindmapChooser = document.getElementById('mindmap-chooser');
 
         // this part is a fake file selector to use in android
         var fileSelector = document.getElementById('file-selector');
@@ -187,33 +184,26 @@ define(function (require) {
             if (onAndroid) {
                 cordobaIO.getFilesList(startFileSelection);
             } else {
-                toonChooser.focus();
-                toonChooser.click();
+                mindmapChooser.focus();
+                mindmapChooser.click();
             };
         });
 
-        toonChooser.addEventListener('click', function (event) {
+        mindmapChooser.addEventListener('click', function (event) {
             this.value = null;
         });
 
-        toonChooser.addEventListener('change', function (event) {
-            // Read file here.
-            var reader = new FileReader();
-            reader.onload = (function(theFile) {
-                return function(e) {
-                    try {
-                        // read the content of the file with JSZip
-                        var zip = new JSZip(e.target.result);
-                        readFototoonFile(zip);
-                    } catch(e) {
-                        console.log('Exception ' + e.message);
-                        console.log('Reading file ' + theFile.name);
-                    };
-                };
-            })(file);
-            var file = toonChooser.files[0];
+        mindmapChooser.addEventListener('change', function (event) {
+            var file = mindmapChooser.files[0];
             if (file) {
-                reader.readAsArrayBuffer(file);
+                jsMind.util.file.read(file,function(jsmind_data, jsmind_name){
+                    var mind = jsMind.util.json.string2json(jsmind_data);
+                    if(!!mind){
+                        _jm.show(mind);
+                    }else{
+                        prompt_info('can not open this file as mindmap');
+                    }
+                });
             };
         }, false);
 
