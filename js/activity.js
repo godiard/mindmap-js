@@ -274,27 +274,9 @@ define(function (require) {
         });
 
         var saveImageButton = document.getElementById("image-save");
-        /*
-        var saveImageMenuData = [{'id': '0', 'label': _('OneRow')},
-                                 {'id': '1', 'label': _('OneColumn')},
-                                 {'id': '2', 'label': _('TwoColumns')}];
-        var simp = new menupalette.MenuPalette(saveImageButton,
-            _("SaveAsImage"), saveImageMenuData);
-
-        for (var i = 0; i < simp.buttons.length; i++) {
-            simp.buttons[i].addEventListener('click', function(e) {
-                if (onAndroid) {
-                    toonModel.saveAsImage(this.id, null);
-                    activity.showAlert(_('ImageSaved'),
-                        _('TheImageIsSavedInYourGallery'), null, null);
-                } else {
-                    toonModel.saveAsImage(this.id, function(blob) {
-                        saveAs(blob, "fototoon.png");
-                    });
-                };
-            });
-        };
-        */
+        saveImageButton.addEventListener('click', function (e) {
+            _jm.shoot();
+        });
 
         /*
         var cleanAllButton = document.getElementById("clean-all-button");
