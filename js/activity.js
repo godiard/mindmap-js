@@ -233,44 +233,10 @@ define(function (require) {
 
         var saveButton = document.getElementById("doc-save");
         saveButton.addEventListener('click', function (e) {
-            toonModel.showWait();
-            zip = new JSZip();
-            // this line is enough to read the file on the js version
-            // because the images data is stored as data uris.
-            // but the objective is have  file format compatible
-            // with the python version
-
-            // zip.file("data.json", JSON.stringify(toonModel.getData()));
-
-            if (!editMode) {
-                toonModel.finishSort();
-                toonModel.init();
-                editMode = true;
-            };
-
-            // clone the data to remove the images
-            var dataWithoutImages = {}
-            dataWithoutImages['version'] = toonModel.getData()['version'];
-            dataWithoutImages['boxs'] = toonModel.getData()['boxs'];
-            zip.file("data.json", JSON.stringify(dataWithoutImages));
-
-            for(var key in toonModel.getData()['images']) {
-                var imageName = key;
-                console.log('saving image ' + imageName);
-                zip.file(imageName,
-                         dataURItoString(toonModel.getData()['images'][imageName]),
-                         {'binary': true});
-            };
-
-            var blob = zip.generate({type:"blob"});
-            if (onAndroid) {
-                cordobaIO.save(blob, toonModel.getTitle() + ".fototoon");
-                activity.showAlert(_('ToonSaved'),
-                    _('FileSavedSuccessfully'), null, null);
-            } else {
-                saveAs(blob, toonModel.getTitle() + ".fototoon");
-            };
-            toonModel.hideWait();
+            var mind_data = _jm.get_data();
+            var mind_name = mind_data.meta.name;
+            var mind_str = jsMind.util.json.json2string(mind_data);
+            jsMind.util.file.save(mind_str,'text/jsmind',mind_name+'.jm');
         });
 
         var saveImageButton = document.getElementById("image-save");
@@ -278,24 +244,8 @@ define(function (require) {
             _jm.shoot();
         });
 
-        /*
-        var cleanAllButton = document.getElementById("clean-all-button");
 
-        cleanAllButton.addEventListener('click', function (e) {
 
-            activity.showConfirmationAlert(_('ATENTION'),
-                _('RemoveAllConfirmMessage'),
-                _('Yes'), _('No'), function(result) {
-                    if (result) {
-                        toonModel.setData(initialData);
-                        if (!editMode) {
-                            toonModel.changeToEditMode();
-                            editMode = true;
-                        };
-                    };
-                });
-        });
-        */
     });
 
 });
