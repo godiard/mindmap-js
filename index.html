@@ -23,6 +23,11 @@
 
     <script data-main="js/loader" src="lib/require.js"></script>
     <script type="text/javascript" src="js/jquery.js" ></script>
+    <script type="text/javascript" src="js/jsmind.js"></script>
+    <script type="text/javascript" src="js/jsmind.draggable.js"></script>
+    <script type="text/javascript" src="js/jsmind.screenshot.js"></script>
+    <link type="text/css" rel="stylesheet" href="css/jsmind.css" />
+
   </head>
   
   <body>
@@ -47,13 +52,9 @@
 
       <button class="toolbutton pull-right" id="stop-button" title="Stop"></button>
     </div>
-    <div id="canvas">
-      <canvas id="mainCanvas" width=1px height=1px>
-      </canvas>
-      <div id="file-selector" style="display: none">
-      </div>
-    </div>
-    <div id="io-div">
+    <div id="jsmind_container" style="height:90%"></div>
+    <div id="file-selector" style="display: none"></div>
+    <div id="io-div" style="display: none">
       <input class="file" type="file" id="image-chooser" accept="image/*"/>
       <input class="file" type="file" id="mindmap-chooser" accept=".jm"/>
     </div>

@@ -67,19 +67,24 @@ define(function (require) {
         require("persistence");
         var cordobaIO = new persistence.CordobaIO();
 
+        var options = {
+            container:'jsmind_container',
+            theme:'greensea',
+            editable:true
+        }
+        _jm = jsMind.show(options);
+
+        /*
         var mainCanvas = document.getElementById("mainCanvas");
         var sortCanvas = document.getElementById("sortCanvas");
         // remove 5 more to be sure no scrollbars are visible
         mainCanvas.height = window.innerHeight - sugarCellSize - 5;
         mainCanvas.width = mainCanvas.height * 4 / 3;
         mainCanvas.style.left = ((window.innerWidth - mainCanvas.width) / 2) + "px";
-
+        */
 
         var textButton = document.getElementById("text-button");
         var tp = new textpalette.TextPalette(textButton, _('SetGlobeText'));
-
-       // page counter
-        var pageCounter = document.getElementById("page-counter");
 
 
         var editMode = true;
