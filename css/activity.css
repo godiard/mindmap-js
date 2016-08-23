@@ -14,20 +14,12 @@
   background-image: url(../icons/save-as-image.svg);
 }
 
-#previous-button {
-  background-image: url(../icons/go-previous-paired.svg);
+#add-node {
+  background-image: url(../icons/text-node.svg);
 }
 
-#next-button {
-  background-image: url(../icons/go-next-paired.svg);
-}
-
-#add-button {
-  background-image: url(../icons/insert-picture.svg);
-}
-
-#add-globe {
-  background-image: url(../icons/globe.svg);
+#add-image-node {
+  background-image: url(../icons/image-node.svg);
 }
 
 #text-button {
@@ -36,10 +28,6 @@
 
 #sort-button {
   background-image: url(../icons/thumbs-view.svg);
-}
-
-#clean-all-button {
-  background-image: url(../icons/edit-clear.svg);
 }
 
 #text-style-toolbar {
