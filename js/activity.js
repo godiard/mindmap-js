@@ -83,35 +83,46 @@ define(function (require) {
         var textButton = document.getElementById("text-button");
         var tp = new textpalette.TextPalette(textButton, _('SetGlobeText'));
 
+        var addNodeButton = document.getElementById("add-node");
+        var addImageNodeButton = document.getElementById("add-image-node");
 
         var editMode = true;
 
         // load images
         var imageChooser = document.getElementById('image-chooser');
 
-        /*
-        var addButton = document.getElementById("add-button");
-        addButton.addEventListener('click', function (e) {
+        addNodeButton.addEventListener('click', function (e) {
+            var selected_node = _jm.get_selected_node(); // as parent of new node
+            if(!selected_node){prompt_info('please select a node first.');}
+
+            var nodeid = jsMind.util.uuid.newid();
+            var topic = '* Node_'+nodeid.substr(0,5)+' *';
+            var node = _jm.add_node(selected_node, nodeid, topic);
+        });
+
+        addImageNodeButton.addEventListener('click', function (e) {
             imageChooser.focus();
             imageChooser.click();
         });
-        */
+
         imageChooser.addEventListener('click', function (event) {
             this.value = null;
         });
 
         imageChooser.addEventListener('change', function (event) {
-            // Read file here.
             var reader = new FileReader();
             reader.onloadend = (function () {
-                 // toonModel.addImage(reader.result);
+                var selected_node = _jm.get_selected_node();
+                var nodeid = jsMind.util.uuid.newid();
+                var topic = undefined;
+                var node = _jm.add_node(selected_node, nodeid, topic, null,
+                    null, null, true, reader.result);
             });
 
             var file = imageChooser.files[0];
             if (file) {
                 reader.readAsDataURL(file);
             };
-
         }, false);
 
         // load mindmap files
