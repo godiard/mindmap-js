@@ -10,11 +10,6 @@ define(function (require) {
         onAndroid = true;
     };
 
-    var loadTestData = false;
-    if (window.location.search.indexOf('loadTestData') > -1) {
-        loadTestData = true;
-    };
-
     var onXo = ((window.innerWidth == 1200) && (window.innerHeight >= 900));
     var sugarCellSize = 75;
     var sugarSubCellSize = 15;
@@ -56,10 +51,6 @@ define(function (require) {
 
         // HERE GO YOUR CODE
 
-        if (loadTestData) {
-            initialData = testData;
-        };
-
         require("filesaver");
         require("persistence");
         var cordobaIO = new persistence.CordobaIO();
@@ -70,15 +61,6 @@ define(function (require) {
             editable:true
         }
         _jm = jsMind.show(options);
-
-        /*
-        var mainCanvas = document.getElementById("mainCanvas");
-        var sortCanvas = document.getElementById("sortCanvas");
-        // remove 5 more to be sure no scrollbars are visible
-        mainCanvas.height = window.innerHeight - sugarCellSize - 5;
-        mainCanvas.width = mainCanvas.height * 4 / 3;
-        mainCanvas.style.left = ((window.innerWidth - mainCanvas.width) / 2) + "px";
-        */
 
         var textButton = document.getElementById("text-button");
         var tp = new textpalette.TextPalette(textButton, _('SetGlobeText'));
@@ -218,19 +200,6 @@ define(function (require) {
             };
         }, false);
 
-        function dataURItoString(dataURI) {
-            // from http://stackoverflow.com/questions/4998908/
-            // convert-data-uri-to-file-then-append-to-formdata/5100158#5100158
-            // convert base64/URLEncoded data component to raw binary data held in a string
-            var byteString;
-            if (dataURI.split(',')[0].indexOf('base64') >= 0)
-                byteString = atob(dataURI.split(',')[1]);
-            else
-                byteString = unescape(dataURI.split(',')[1]);
-
-            return byteString;
-        };
-
         var saveButton = document.getElementById("doc-save");
         saveButton.addEventListener('click', function (e) {
             var mind_data = _jm.get_data();
@@ -243,8 +212,6 @@ define(function (require) {
         saveImageButton.addEventListener('click', function (e) {
             _jm.shoot();
         });
-
-
 
     });
 
