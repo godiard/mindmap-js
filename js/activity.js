@@ -58,7 +58,10 @@ define(function (require) {
         var options = {
             container:'jsmind_container',
             theme:'greensea',
-            editable:true
+            editable:true,
+            default_event_handle:{
+                enable_dblclick_handle:false
+            }
         }
         _jm = jsMind.show(options);
 
@@ -97,8 +100,12 @@ define(function (require) {
                 var selected_node = _jm.get_selected_node();
                 var nodeid = jsMind.util.uuid.newid();
                 var topic = undefined;
-                var node = _jm.add_node(selected_node, nodeid, topic, null,
-                    null, null, true, reader.result);
+                var topic = undefined;
+                var data = {
+                    "backgroundImage": reader.result,
+                    "width": "100",
+                    "height": "100"};
+                var node = _jm.add_node(selected_node, nodeid, topic, data);
             });
 
             var file = imageChooser.files[0];
