@@ -42,7 +42,6 @@
         mode :'full',     // full or side
         support_html : true,
 
-        image_node_size : 100,
         view:{
             hmargin:100,
             vmargin:50,
@@ -53,6 +52,11 @@
             hspace:30,
             vspace:20,
             pspace:13
+        },
+        default_event_handle:{
+            enable_mousedown_handle:true,
+            enable_click_handle:true,
+            enable_dblclick_handle:true
         },
         shortcut:{
             enable:true,
@@ -96,7 +100,7 @@
     jm.direction = {left:-1,center:0,right:1};
     jm.event_type = {show:1,resize:2,edit:3,select:4};
 
-    jm.node = function(sId,iIndex,sTopic,oData,bIsRoot,oParent,eDirection,bExpanded,sImage){
+    jm.node = function(sId,iIndex,sTopic,oData,bIsRoot,oParent,eDirection,bExpanded){
         if(!sId){logger.error('invalid nodeid');return;}
         if(typeof iIndex != 'number'){logger.error('invalid node index');return;}
         if(typeof bExpanded === 'undefined'){bExpanded = true;}
@@ -104,7 +108,6 @@
         this.index = iIndex;
         this.topic = sTopic;
         this.data = oData || {};
-        this.image = sImage;
         this.isroot = bIsRoot;
         this.parent = oParent;
         this.direction = eDirection;
@@ -199,9 +202,9 @@
             }
         },
 
-        add_node:function(parent_node, nodeid, topic, data, idx, direction, expanded, image){
+        add_node:function(parent_node, nodeid, topic, data, idx, direction, expanded){
             if(typeof parent_node === 'string'){
-                return this.add_node(this.get_node(parent_node), nodeid, topic, data, idx, direction, expanded, image);
+                return this.add_node(this.get_node(parent_node), nodeid, topic, data, idx, direction, expanded);
             }
             var nodeindex = idx || -1;
             if(!!parent_node){
@@ -218,9 +221,9 @@
                     }else{
                         d = (direction != jm.direction.left) ? jm.direction.right : jm.direction.left;
                     }
-                    node = new jm.node(nodeid,nodeindex,topic,data,false,parent_node,d,expanded, image);
+                    node = new jm.node(nodeid,nodeindex,topic,data,false,parent_node,d,expanded);
                 }else{
-                    node = new jm.node(nodeid,nodeindex,topic,data,false,parent_node,parent_node.direction,expanded, image);
+                    node = new jm.node(nodeid,nodeindex,topic,data,false,parent_node,parent_node.direction,expanded);
                 }
                 if(this._put_node(node)){
                     parent_node.children.push(node);
@@ -475,8 +478,7 @@
             _extract_data:function(node_json){
                 var data = {};
                 for(var k in node_json){
-                    if(k == 'id' || k=='topic' || k=='children' || k=='direction' ||
-                       k=='expanded' || k == 'image'){
+                    if(k == 'id' || k=='topic' || k=='children' || k=='direction' || k=='expanded'){
                         continue;
                     }
                     data[k] = node_json[k];
@@ -491,8 +493,7 @@
                 if(node_parent.isroot){
                     d = node_json.direction == 'left'?jm.direction.left:jm.direction.right;
                 }
-                var node = mind.add_node(node_parent, node_json.id, node_json.topic, data, null, d,
-                        node_json.expanded, node_json.image);
+                var node = mind.add_node(node_parent, node_json.id, node_json.topic, data, null, d, node_json.expanded);
                 if('children' in node_json){
                     var children = node_json.children;
                     for(var i=0;i<children.length;i++){
@@ -507,7 +508,6 @@
                 var o = {
                     id : node.id,
                     topic : node.topic,
-                    image: node.image,
                     expanded : node.expanded
                 };
                 if(!!node.parent && node.parent.isroot){
@@ -610,7 +610,7 @@
                         if(!!node_direction){
                             d = node_direction == 'left'?jm.direction.left:jm.direction.right;
                         }
-                        mind.add_node(parentid, node_json.id, node_json.topic, data, null, d, node_json.expanded, node_json.image);
+                        mind.add_node(parentid, node_json.id, node_json.topic, data, null, d, node_json.expanded);
                         node_array.splice(i,1);
                         extract_count ++;
                         var sub_extract_count = df._extract_subnode(mind, node_json.id, node_array);
@@ -627,7 +627,7 @@
             _extract_data:function(node_json){
                 var data = {};
                 for(var k in node_json){
-                    if(k == 'id' || k=='topic' || k=='parentid' || k=='isroot' || k=='direction' || k=='expanded' || k=='image'){
+                    if(k == 'id' || k=='topic' || k=='parentid' || k=='isroot' || k=='direction' || k=='expanded'){
                         continue;
                     }
                     data[k] = node_json[k];
@@ -646,7 +646,6 @@
                 var o = {
                     id : node.id,
                     topic : node.topic,
-                    image: node.image,
                     expanded : node.expanded
                 };
                 if(!!node.parent){
@@ -1082,6 +1081,18 @@
             this.options.editable = false;
         },
 
+        // call enable_event_handle('dblclick')
+        // options are 'mousedown', 'click', 'dblclick'
+        enable_event_handle: function(event_handle){
+            this.options.default_event_handle['enable_'+event_handle+'_handle'] = true;
+        },
+
+        // call disable_event_handle('dblclick')
+        // options are 'mousedown', 'click', 'dblclick'
+        disable_event_handle: function(event_handle){
+            this.options.default_event_handle['enable_'+event_handle+'_handle'] = false;
+        },
+
         get_editable:function(){
             return this.options.editable;
         },
@@ -1101,6 +1112,9 @@
         },
 
         mousedown_handle:function(e){
+            if (!this.options.default_event_handle['enable_mousedown_handle']) {
+                return;
+            }
             var element = e.target || event.srcElement;
             var isnode = this.view.is_node(element);
             if(isnode){
@@ -1112,6 +1126,9 @@
         },
 
         click_handle:function(e){
+            if (!this.options.default_event_handle['enable_click_handle']) {
+                return;
+            }
             var element = e.target || event.srcElement;
             var isexpander = this.view.is_expander(element);
             if(isexpander){
@@ -1121,6 +1138,9 @@
         },
 
         dblclick_handle:function(e){
+            if (!this.options.default_event_handle['enable_dblclick_handle']) {
+                return;
+            }
             if(this.get_editable()){
                 var element = e.target || event.srcElement;
                 var isnode = this.view.is_node(element);
@@ -1255,11 +1275,9 @@
             return this.mind.get_node(nodeid);
         },
 
-        add_node:function(parent_node, nodeid, topic, data, idx,
-                direction, expanded, image){
+        add_node:function(parent_node, nodeid, topic, data){
             if(this.get_editable()){
-                var node = this.mind.add_node(parent_node, nodeid, topic, data,
-                     idx, direction, expanded, image);
+                var node = this.mind.add_node(parent_node, nodeid, topic, data);
                 if(!!node){
                     this.view.add_node(node);
                     this.layout.layout();
@@ -2140,30 +2158,34 @@
             }
             d.setAttribute('nodeid',node.id);
             d.style.visibility='hidden';
-            if (!!node.image) {
-                var imageSize = this.jm.options.image_node_size;
-                // if image is a data url, scale to imageSize
-                if (node.image.startsWith('data')) {
+            if(!!node.data.width){
+                d.style.width = node.data.width+'px';
+            }
+            if(!!node.data.height){
+                d.style.height = node.data.height+'px';
+            }
+            if (!!node.data.backgroundImage) {
+                var backgroundImage = node.data.backgroundImage;
+                if (backgroundImage.startsWith('data') && node.data.width && node.data.height) {
                     var img = new Image();
+
                     img.onload = function() {
                         var c = document.createElement('canvas');
-                        c.width = imageSize;
-                        c.height = imageSize;
+                        c.width = node.data.width;
+                        c.height = node.data.height;
                         var img = this;
                         if(c.getContext) {
                             var ctx = c.getContext('2d');
-                            ctx.drawImage(img, 2, 2, imageSize, imageSize);
+                            ctx.drawImage(img, 2, 2, node.data.width, node.data.height);
                             var scaledImageData = c.toDataURL();
                             d.style.backgroundImage='url('+scaledImageData+')';
                         }
                     };
-                    img.src = node.image;
+                    img.src = node.data.backgroundImage;
 
                 } else {
-                    d.style.backgroundImage='url('+node.image+')';
+                    d.style.backgroundImage='url('+node.data.backgroundImage+')';
                 }
-                d.style.width=imageSize+'px';
-                d.style.height=imageSize+'px';
                 d.style.backgroundSize='99%';
             }
             parent_node.appendChild(d);
@@ -2233,12 +2255,12 @@
         },
 
         edit_node_begin:function(node){
-            if(this.editing_node != null){
-                this.edit_node_end();
-            }
             if(!node.topic) {
                 // don't edit image nodes
                 return;
+            }
+            if(this.editing_node != null){
+                this.edit_node_end();
             }
             this.editing_node = node;
             var view_data = node._data.view;
@@ -2396,6 +2418,10 @@
             if('foreground-color' in node.data){
                 node_element.style.color = node.data['foreground-color'];
             }
+            if('background-image' in node.data){
+                node_element.style.backgroundImage = node.data['background-image'];
+            }
+
         },
 
         clear_node_custom_style:function(node){

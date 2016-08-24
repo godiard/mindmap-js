@@ -110,24 +110,27 @@
             this.resize();
         },
 
-        shoot:function(){
+        shoot:function(callback){
             this.init();
-            var jsm = this;
+            this._watermark();
+            var jms = this;
             this._draw(function(){
-                jsm._watermark();
-                jsm._download();
-                jsm.clean();
+                if(!!callback){
+                    callback(jms);
+                }
+                jms.clean();
             });
         },
 
-        shootAsDataURL:function(callback){
-            this.init();
-            this._watermark();
-            var jsm = this;
-            this._draw(function() {
-                var url = jsm.canvas_elem.toDataURL();
-                jsm.clean();
-                callback(url);
+        shootDownload: function(){
+            this.shoot(function(jms){
+                jms._download();
+            });
+        },
+
+        shootAsDataURL: function(callback){
+            this.shoot(function(jms){
+                callback(jms.canvas_elem.toDataURL());
             });
         },
 
@@ -227,7 +230,7 @@
             ctx.fill();
 
             ctx.fillStyle = color;
-            if (!!node.image) {
+            if (!!node.data['backgroundImage']) {
                 var backgroundUrl = css(ncs,'background-image').slice(5, -2);
                 jcanvas.image(ctx, backgroundUrl, tb.x, tb.y, tb.w, tb.h,
                     function() {
