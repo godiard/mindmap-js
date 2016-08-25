@@ -64,6 +64,7 @@ define(function (require) {
             }
         }
         _jm = jsMind.show(options);
+        _jm.update_node('root', _('RootNodeText'));
 
         function get_selected_nodeid(){
             var selected_node = _jm.get_selected_node();
@@ -90,7 +91,7 @@ define(function (require) {
                 return;
             }
             var nodeid = jsMind.util.uuid.newid();
-            var topic = '* Node_'+nodeid.substr(0,5)+' *';
+            var topic = _('NodeText');
             var node = _jm.add_node(selected_node, nodeid, topic);
         });
 
