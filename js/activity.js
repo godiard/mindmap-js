@@ -65,27 +65,41 @@ define(function (require) {
         }
         _jm = jsMind.show(options);
 
+        function get_selected_nodeid(){
+            var selected_node = _jm.get_selected_node();
+            if(!!selected_node){
+                return selected_node.id;
+            }else{
+                return null;
+            }
+        }
+
         var textButton = document.getElementById("text-button");
         var tp = new textpalette.TextPalette(textButton, _('SetGlobeText'));
 
         var addNodeButton = document.getElementById("add-node");
         var addImageNodeButton = document.getElementById("add-image-node");
 
-        var editMode = true;
-
         // load images
         var imageChooser = document.getElementById('image-chooser');
 
         addNodeButton.addEventListener('click', function (e) {
             var selected_node = _jm.get_selected_node(); // as parent of new node
-            if(!selected_node){prompt_info('please select a node first.');}
-
+            if(!selected_node){
+                //prompt_info('please select a node first.');
+                return;
+            }
             var nodeid = jsMind.util.uuid.newid();
             var topic = '* Node_'+nodeid.substr(0,5)+' *';
             var node = _jm.add_node(selected_node, nodeid, topic);
         });
 
         addImageNodeButton.addEventListener('click', function (e) {
+            var selected_node = _jm.get_selected_node(); // as parent of new node
+            if(!selected_node){
+                //prompt_info('please select a node first.');
+                return;
+            }
             imageChooser.focus();
             imageChooser.click();
         });
@@ -219,6 +233,18 @@ define(function (require) {
         saveImageButton.addEventListener('click', function (e) {
             _jm.shoot();
         });
+
+        var deleteButton = document.getElementById("delete-button");
+        deleteButton.addEventListener('click', function (e) {
+            var selected_id = get_selected_nodeid();
+            if(!selected_id){
+                //prompt_info('please select a node first.');
+                return;
+            }
+
+            _jm.remove_node(selected_id);
+        });
+
 
     });
 
