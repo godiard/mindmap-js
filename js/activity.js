@@ -57,10 +57,13 @@ define(function (require) {
 
         var options = {
             container:'jsmind_container',
-            theme:'greensea',
+            theme:'default',
             editable:true,
             default_event_handle:{
                 enable_dblclick_handle:false
+            },
+            shortcut:{
+                enable:false
             }
         }
         _jm = jsMind.show(options);
@@ -75,8 +78,38 @@ define(function (require) {
             }
         }
 
+        // paleta de edicion de texto
         var textButton = document.getElementById("text-button");
         var tp = new textpalette.TextPalette(textButton, _('SetGlobeText'));
+
+        // NOTE: this not work on IE see here for more info:
+        // http://stackoverflow.com/questions/2823733/textarea-onchange-detection
+        tp.editorElem.addEventListener('input', function() {
+            _jm.update_node(get_selected_nodeid(), this.value);
+        }, false);;
+
+        var colorButtons = tp.colorButtons;
+        for (var i = 0; i < colorButtons.length; i++) {
+            colorButtons[i].addEventListener('click', function(e) {
+                _jm.set_node_color(get_selected_nodeid(), null, this.value);
+            });
+        };
+
+        //
+
+        _jm.view.add_event(this,'dblclick',function(e) {
+            var topic = _jm.get_node(get_selected_nodeid()).topic;
+            tp.setText(topic);
+            tp.popUp();
+            tp.editorElem.focus();
+        });
+
+        _jm.view.add_event(this,'mousedown',function(e) {
+            var topic = _jm.get_node(get_selected_nodeid()).topic;
+            tp.setText(topic);
+        });
+
+        //
 
         var addNodeButton = document.getElementById("add-node");
         var addImageNodeButton = document.getElementById("add-image-node");

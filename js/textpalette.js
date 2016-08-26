@@ -1,5 +1,8 @@
 define(["sugar-web/graphics/palette"], function (palette) {
 
+    /* Copied from fotoToon, but without buttons to set Bold/Italics
+       and increase and decrese text size */
+
     'use strict';
 
     var textpalette = {};
@@ -18,16 +21,6 @@ define(["sugar-web/graphics/palette"], function (palette) {
             '<div class="row expand">' +
             '<textarea rows="8" id="editor" class="expand"></textarea>' +
             '</div>';
-
-
-        var styleToolbar = '<div class="toolbar" id="text-style-toolbar">' +
-            '<button class="toolbutton" id="text-inc-size"></button>' +
-            '<button class="toolbutton" id="text-dec-size"></button>' +
-            '<button class="toolbutton" id="text-set-bold"></button>' +
-            '<button class="toolbutton" id="text-set-italic"></button>'+
-            '</div>';
-
-        content = content + styleToolbar;
 
         var colors = ['#000000', '#ff0000', '#00008b', '#006400', '#8b008b',
                       '#c0c0c0', '#ffd700', '#008000', '#ff4500', '#8b4513' ];
@@ -50,12 +43,6 @@ define(["sugar-web/graphics/palette"], function (palette) {
         this.editorElem = containerElem.querySelector('#editor');
 
         this.colorButtons = document.querySelectorAll(".color-picker");
-
-        this.incTextBtn = containerElem.querySelector('#text-inc-size');
-        this.decTextBtn = containerElem.querySelector('#text-dec-size');
-        this.boldTextBtn = containerElem.querySelector('#text-set-bold');
-        this.italicTextBtn = containerElem.querySelector('#text-set-italic');
-
     };
 
     var setText = function (text) {
