@@ -297,6 +297,7 @@ label {
   color: white;
   pointer-events: none;
   background-color: transparent;
+  z-index: 10;
 }
 .palette-invoker {
   width: 51px;
