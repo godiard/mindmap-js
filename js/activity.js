@@ -264,7 +264,28 @@ define(function (require) {
 
         var saveImageButton = document.getElementById("image-save");
         saveImageButton.addEventListener('click', function (e) {
-            _jm.screenshot.shootDownload();
+            if (onAndroid) {
+                console.log("save on android");
+                _jm.screenshot.shootAsDataURL(function(dataUrl) {
+                    console.log("_jm.screenshot.AsDataURL");
+                    // don't have direct access to the canvas use to draw all
+                    // use the logic copied from Canvas2IagePlugin.js
+                    var imageData = dataUrl.replace(/data:image\/png;base64,/,'');
+                    cordova.exec(function(msg){
+                        console.log(msg);
+                    },
+                    function(err){
+                        console.log(err);
+                    },
+                    "Canvas2ImagePlugin",
+                    "saveImageDataToLibrary",[imageData]);
+                    activity.showAlert(_('ImageSaved'),
+                        _('TheImageIsSavedInYourGallery'), null, null);
+                });
+
+            } else {
+                _jm.screenshot.shootDownload();
+            }
         });
 
         var deleteButton = document.getElementById("delete-button");
