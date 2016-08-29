@@ -120,8 +120,7 @@ define(function (require) {
         addNodeButton.addEventListener('click', function (e) {
             var selected_node = _jm.get_selected_node(); // as parent of new node
             if(!selected_node){
-                //prompt_info('please select a node first.');
-                return;
+                selected_node = _jm.get_root();
             }
             var nodeid = jsMind.util.uuid.newid();
             var topic = _('NodeText');
@@ -129,11 +128,6 @@ define(function (require) {
         });
 
         addImageNodeButton.addEventListener('click', function (e) {
-            var selected_node = _jm.get_selected_node(); // as parent of new node
-            if(!selected_node){
-                //prompt_info('please select a node first.');
-                return;
-            }
             imageChooser.focus();
             imageChooser.click();
         });
@@ -146,8 +140,10 @@ define(function (require) {
             var reader = new FileReader();
             reader.onloadend = (function () {
                 var selected_node = _jm.get_selected_node();
+                if(!selected_node){
+                    selected_node = _jm.get_root();
+                }
                 var nodeid = jsMind.util.uuid.newid();
-                var topic = undefined;
                 var topic = undefined;
                 var data = {
                     "backgroundImage": reader.result,
