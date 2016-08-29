@@ -264,7 +264,7 @@ define(function (require) {
 
         var saveImageButton = document.getElementById("image-save");
         saveImageButton.addEventListener('click', function (e) {
-            _jm.shoot();
+            _jm.screenshot.shootDownload();
         });
 
         var deleteButton = document.getElementById("delete-button");
