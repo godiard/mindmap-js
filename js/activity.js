@@ -51,6 +51,8 @@ define(function (require) {
 
         // HERE GO YOUR CODE
 
+        document.getElementById("jsmind_container").height = (window.innerHeight - sugarCellSize - 5);
+
         require("filesaver");
         require("persistence");
         var cordobaIO = new persistence.CordobaIO();
@@ -68,6 +70,7 @@ define(function (require) {
         }
         _jm = jsMind.show(options);
         _jm.update_node('root', _('RootNodeText'));
+        _jm.resize();
 
         function get_selected_nodeid(){
             var selected_node = _jm.get_selected_node();
