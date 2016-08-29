@@ -1116,9 +1116,8 @@
                 return;
             }
             var element = e.target || event.srcElement;
-            var isnode = this.view.is_node(element);
-            if(isnode){
-                var nodeid = this.view.get_nodeid(element);
+            var nodeid = this.view.get_binded_nodeid(element);
+            if(!!nodeid){
                 this.select_node(nodeid);
             }else{
                 this.select_clear();
@@ -1132,8 +1131,10 @@
             var element = e.target || event.srcElement;
             var isexpander = this.view.is_expander(element);
             if(isexpander){
-                var nodeid = this.view.get_nodeid(element);
-                this.toggle_node(nodeid);
+                var nodeid = this.view.get_binded_nodeid(element);
+                if(!!nodeid){
+                    this.toggle_node(nodeid);
+                } 
             }
         },
 
@@ -1143,9 +1144,8 @@
             }
             if(this.get_editable()){
                 var element = e.target || event.srcElement;
-                var isnode = this.view.is_node(element);
-                if(isnode){
-                    var nodeid = this.view.get_nodeid(element);
+                var nodeid = this.view.get_binded_nodeid(element);
+                if(!!nodeid){
                     this.begin_edit(nodeid);
                 }
             }
@@ -1397,7 +1397,7 @@
             if(typeof node === 'string'){
                 return this.select_node(this.get_node(node));
             }
-            if(!this.layout.is_visible(node)){
+            if(!node || !this.layout.is_visible(node)){
                 return;
             }
             this.mind.selected = node;
@@ -2048,12 +2048,19 @@
             });
         },
 
-        get_nodeid:function(element){
-            return element.getAttribute('nodeid');
-        },
-
-        is_node:function(element){
-            return (element.tagName.toLowerCase() == 'jmnode');
+        get_binded_nodeid:function(element){
+            if(element == null){
+                return null;
+            }
+            var tagName = element.tagName.toLowerCase();
+            if(tagName == 'jmnodes' || tagName == 'body' || tagName == 'html'){
+                return null;
+            }
+            if(tagName == 'jmnode' || tagName == 'jmexpander'){
+                return element.getAttribute('nodeid');
+            }else{
+                return this.get_binded_nodeid(element.parentElement);
+            }
         },
 
         is_expander:function(element){
@@ -2158,33 +2165,33 @@
             }
             d.setAttribute('nodeid',node.id);
             d.style.visibility='hidden';
-            if(!!node.data.width){
+            if('width' in node.data){
                 d.style.width = node.data.width+'px';
             }
-            if(!!node.data.height){
+            if('height' in node.data){
                 d.style.height = node.data.height+'px';
             }
-            if (!!node.data.backgroundImage) {
-                var backgroundImage = node.data.backgroundImage;
+            if ('background-image' in node.data) {
+                var backgroundImage = node.data['background-image'];
                 if (backgroundImage.startsWith('data') && node.data.width && node.data.height) {
                     var img = new Image();
 
                     img.onload = function() {
                         var c = document.createElement('canvas');
-                        c.width = node.data.width;
-                        c.height = node.data.height;
+                        c.width = d.clientWidth;
+                        c.height = d.clientHeight;
                         var img = this;
                         if(c.getContext) {
                             var ctx = c.getContext('2d');
-                            ctx.drawImage(img, 2, 2, node.data.width, node.data.height);
+                            ctx.drawImage(img, 2, 2, d.clientWidth, d.clientHeight);
                             var scaledImageData = c.toDataURL();
                             d.style.backgroundImage='url('+scaledImageData+')';
                         }
                     };
-                    img.src = node.data.backgroundImage;
+                    img.src = backgroundImage;
 
                 } else {
-                    d.style.backgroundImage='url('+node.data.backgroundImage+')';
+                    d.style.backgroundImage='url('+backgroundImage+')';
                 }
                 d.style.backgroundSize='99%';
             }
@@ -2256,7 +2263,7 @@
 
         edit_node_begin:function(node){
             if(!node.topic) {
-                // don't edit image nodes
+                logger.warn("don't edit image nodes");
                 return;
             }
             if(this.editing_node != null){

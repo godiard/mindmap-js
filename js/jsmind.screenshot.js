@@ -230,13 +230,13 @@
             ctx.fill();
 
             ctx.fillStyle = color;
-            if (!!node.data['backgroundImage']) {
+            if ('background-image' in node.data) {
                 var backgroundUrl = css(ncs,'background-image').slice(5, -2);
-                jcanvas.image(ctx, backgroundUrl, tb.x, tb.y, tb.w, tb.h,
+                node.ready = false;
+                jcanvas.image(ctx, backgroundUrl, rb.x, rb.y, rb.w, rb.h,
                     function() {
                         node.ready = true;
                     });
-                node.ready = false;
             }
             if (!!node.topic) {
                 if(text_overflow === 'ellipsis'){
