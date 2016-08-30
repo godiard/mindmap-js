@@ -22,6 +22,8 @@ define(function (require) {
     var lang = navigator.language.substr(0, 2);
     console.log('LANG ' + lang);
 
+    var fileExtension = '.jm';
+
     function _(text) {
         // this function add a fallback for the case of translation not found
         // can be removed when we find how to read the localization.ini
@@ -51,7 +53,8 @@ define(function (require) {
 
         // HERE GO YOUR CODE
 
-        document.getElementById("jsmind_container").height = (window.innerHeight - sugarCellSize - 5);
+        var mainCanvas = document.getElementById("jsmind_container");
+        mainCanvas.height = (window.innerHeight - sugarCellSize - 5);
 
         require("filesaver");
         require("persistence");
@@ -168,20 +171,21 @@ define(function (require) {
         var fileSelector = document.getElementById('file-selector');
 
         function selectFile(fileName) {
-            fileName = fileName + '.fototoon';
-            toonModel.showWait();
-            cordobaIO.read(fileName, function(content) {
+            fileName = fileName + fileExtension;
+            cordobaIO.readAsText(fileName, function(jsmind_data) {
                 closeSelector();
-                var zip = new JSZip(content);
-                readFototoonFile(zip);
-                toonModel.hideWait();
+                var mind = jsMind.util.json.string2json(jsmind_data);
+                if(!!mind){
+                    _jm.show(mind);
+                }else{
+                    console.log('can not open this file as mindmap');
+                }
             });
         };
 
         function closeSelector() {
             fileSelector.style.display = 'none';
             mainCanvas.style.display = 'block';
-            pageCounter.style.display = 'block';
         };
 
         function startFileSelection(fileList) {
@@ -190,22 +194,20 @@ define(function (require) {
                 return;
             };
             mainCanvas.style.display = 'none';
-            sortCanvas.style.display = 'none';
-            pageCounter.style.display = 'none';
 
             // create file list entries
             var content = '';
             for (var i = 0; i < fileList.length; i++) {
                 var filePath = fileList[i];
                 var fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
-                fileName = fileName.substring(0, fileName.indexOf('.fototoon'));
+                fileName = fileName.substring(0, fileName.indexOf(fileExtension));
                 content = content + '<button id="' + fileName + '">' +
                     fileName + '</button><br/>';
             };
 
             // add a button to close the file selector
             content = content + '<button id="exit-file-selector">' +
-                '<img src="./icons/dialog-cancel-black.svg">'
+                '<img src="./icons/dialog-cancel.svg">'
                 '</button>';
 
             fileSelector.style.left = ((window.innerWidth - 500) / 2) + "px";
@@ -229,7 +231,7 @@ define(function (require) {
         var openButton = document.getElementById("doc-open");
         openButton.addEventListener('click', function (e) {
             if (onAndroid) {
-                cordobaIO.getFilesList(startFileSelection);
+                cordobaIO.getFilesList(fileExtension, startFileSelection);
             } else {
                 mindmapChooser.focus();
                 mindmapChooser.click();
@@ -248,7 +250,7 @@ define(function (require) {
                     if(!!mind){
                         _jm.show(mind);
                     }else{
-                        prompt_info('can not open this file as mindmap');
+                        console.log('can not open this file as mindmap');
                     }
                 });
             };
@@ -257,9 +259,18 @@ define(function (require) {
         var saveButton = document.getElementById("doc-save");
         saveButton.addEventListener('click', function (e) {
             var mind_data = _jm.get_data();
-            var mind_name = mind_data.meta.name;
+            var mind_name = _jm.get_root().topic;
             var mind_str = jsMind.util.json.json2string(mind_data);
-            jsMind.util.file.save(mind_str,'text/jsmind',mind_name+'.jm');
+
+            if (onAndroid) {
+                cordobaIO.save(mind_str, mind_name + fileExtension);
+                activity.showAlert(_('MindMapSaved'),
+                    _('FileSavedSuccessfully'), null, null);
+            } else {
+                jsMind.util.file.save(mind_str,'text/jsmind',
+                    mind_name + fileExtension);
+            };
+
         });
 
         var saveImageButton = document.getElementById("image-save");

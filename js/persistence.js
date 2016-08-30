@@ -54,14 +54,14 @@ define(function (require) {
                 onFsResolved, errorHandler);
         };
 
-        this.getFilesList = function(callback) {
+        this.getFilesList = function(fileExtension, callback) {
             var fileList = [];
 
             function onDirResolved(dir) {
                 var reader =dir.createReader();
                 reader.readEntries(function(entries) {
                     for (var i=0; i<entries.length; i++) {
-                        if (entries[i].name.indexOf(".fototoon") != -1) {
+                        if (entries[i].name.indexOf(fileExtension) != -1) {
                             fileList.push(entries[i].fullPath);
                         };
                     };
@@ -106,6 +106,32 @@ define(function (require) {
             window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
                 onFsResolved, errorHandler);
         };
+
+        this.readAsText = function(fileName, callback) {
+            // read a file from disk
+
+            function onFileResolved(entry) {
+
+                entry.file(function(file) {
+                    var reader = new FileReader();
+                    reader.onloadend = function(e) {
+                        console.log("Read file: " + fileName);
+                        callback(e.target.result);
+                    };
+                    reader.readAsText(file);
+                });
+            };
+
+            function onFsResolved(fs) {
+                window.resolveLocalFileSystemURL(
+                    cordova.file.externalApplicationStorageDirectory + fileName,
+                    onFileResolved, errorHandler);
+            };
+
+            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
+                onFsResolved, errorHandler);
+        };
+
 
     };
 

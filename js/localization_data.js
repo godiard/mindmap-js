@@ -11,7 +11,7 @@ uiStrings = {
 'SaveAsImage': 'Save as image',
 'ImageSaved': 'Image saved',
 'TheImageIsSavedInYourGallery': 'The image is available in your tablet Gallery',
-'ToonSaved': 'MindMap saved',
+'MindMapSaved': 'MindMap saved',
 'FileSavedSuccessfully': 'The file was saved successfully.',
 'FileNotFound': 'File not found',
 'SetGlobeText': 'Set thought text'},
@@ -26,7 +26,7 @@ uiStrings = {
 'SaveAsImage': 'Grabar como imagen',
 'ImageSaved': 'Imagen grabada',
 'TheImageIsSavedInYourGallery': 'La imagen está disponible en la Galería de Imágenes',
-'ToonSaved': 'Mapa Mental grabado',
+'MindMapSaved': 'Mapa Mental grabado',
 'FileSavedSuccessfully': 'El archivo fue grabado con éxito.',
 'FileNotFound': 'No se encontraron archivos',
 'SetGlobeText': 'Editar texto del pensamiento'}

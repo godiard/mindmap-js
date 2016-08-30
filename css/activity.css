@@ -1,3 +1,7 @@
+body {
+  background-color:#009fe3
+}
+
 #main-toolbar #activity-button {
   background-image: url(../activity/activity-labyrinth.svg);
 }
@@ -156,8 +160,8 @@ background-size: 100% 1.2em;
 
 #file-selector button {
   font-size: 20px;
-  color: white;
-  background-color: #c0c0c0;
+  color: black;
+  background-color: white;
   border-radius: 0px;
   padding: 5px;
   height: 50px;
