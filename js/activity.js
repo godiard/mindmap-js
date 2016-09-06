@@ -84,6 +84,23 @@ define(function (require) {
             }
         }
 
+        _jm.view.add_event(this,'dblclick',function(e) {
+            var node_id = get_selected_nodeid();
+            if (node_id != null) {
+                var topic = _jm.get_node(node_id).topic;
+                tp.setText(topic);
+                tp.popUp();
+                tp.editorElem.focus();
+            }
+        });
+
+        _jm.view.add_event(this,'mousedown',function(e) {
+            var node_id = get_selected_nodeid();
+            if (node_id != null) {
+                tp.setText(_jm.get_node(node_id).topic);
+            }
+        });
+
         // paleta de edicion de texto
         var textButton = document.getElementById("text-button");
         var tp = new textpalette.TextPalette(textButton, _('SetGlobeText'));
@@ -100,22 +117,6 @@ define(function (require) {
                 _jm.set_node_color(get_selected_nodeid(), null, this.value);
             });
         };
-
-        //
-
-        _jm.view.add_event(this,'dblclick',function(e) {
-            var topic = _jm.get_node(get_selected_nodeid()).topic;
-            tp.setText(topic);
-            tp.popUp();
-            tp.editorElem.focus();
-        });
-
-        _jm.view.add_event(this,'mousedown',function(e) {
-            var topic = _jm.get_node(get_selected_nodeid()).topic;
-            tp.setText(topic);
-        });
-
-        //
 
         var addNodeButton = document.getElementById("add-node");
         var addImageNodeButton = document.getElementById("add-image-node");
@@ -309,7 +310,6 @@ define(function (require) {
 
             _jm.remove_node(selected_id);
         });
-
 
     });
 
