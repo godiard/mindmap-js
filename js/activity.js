@@ -311,6 +311,20 @@ define(function (require) {
             _jm.remove_node(selected_id);
         });
 
+        if (typeof(AndroidFullScreen) != 'undefined') {
+            console.info("AndroidFullScreen is defined");
+            if (AndroidFullScreen.isSupported()) {
+                console.info("AndroidFullScreen.isSupported()");
+
+            }
+            AndroidFullScreen.immersiveMode(
+                function(){
+                    console.info("AndroidFullScreen.immersiveMode success");
+                }, function(){
+                    console.info("AndroidFullScreen.immersiveMode error");
+                });
+        }
+
     });
 
 });
