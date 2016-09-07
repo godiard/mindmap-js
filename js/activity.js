@@ -153,7 +153,7 @@ define(function (require) {
                 var nodeid = jsMind.util.uuid.newid();
                 var topic = undefined;
                 var data = {
-                    "backgroundImage": reader.result,
+                    "background-image": reader.result,
                     "width": "100",
                     "height": "100"};
                 var node = _jm.add_node(selected_node, nodeid, topic, data);
