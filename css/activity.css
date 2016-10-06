@@ -26,6 +26,14 @@ body {
   background-image: url(../icons/image-node.svg);
 }
 
+#zoom-in-button {
+  background-image: url(../icons/zoom-in.svg);
+}
+
+#zoom-out-button {
+  background-image: url(../icons/zoom-out.svg);
+}
+
 #text-button {
   background-image: url(../icons/format-text-size.svg);
 }
