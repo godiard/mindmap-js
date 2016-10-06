@@ -300,31 +300,22 @@ define(function (require) {
             }
         });
 
-        this.zoom = 1;
-        var minZoom = 0.5;
-        var maxZoom = 2;
-        var zoomStep = 0.1;
-
-        function changeZoom(delta) {
-            var newZoom = this.zoom + delta;
-            console.log(newZoom);
-            if (newZoom < maxZoom && newZoom > minZoom) {
-                this.zoom = newZoom;
-                var jsmindContainer = document.getElementsByClassName('jsmind-inner')[0];
-                jsmindContainer.style.zoom = this.zoom;
-            }
-            zoomInButton.disabled = this.zoom >= maxZoom;
-            zoomOutButton.disabled = this.zoom <= minZoom;
-        };
-
         var zoomInButton = document.getElementById("zoom-in-button");
         zoomInButton.addEventListener('click', function (e) {
-            changeZoom(zoomStep);
+            if (_jm.view.zoomIn()) {
+                zoomOutButton.disabled = false;
+            } else {
+                this.disabled = true;
+            };
         });
 
         var zoomOutButton = document.getElementById("zoom-out-button");
         zoomOutButton.addEventListener('click', function (e) {
-            changeZoom(- zoomStep);
+            if (_jm.view.zoomOut()) {
+                zoomInButton.disabled = false;
+            } else {
+                this.disabled = true;
+            };
         });
 
         var deleteButton = document.getElementById("delete-button");
