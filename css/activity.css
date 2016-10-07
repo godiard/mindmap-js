@@ -75,6 +75,29 @@ body {
   resize: none;
 }
 
+
+/* Colors Palette */
+
+.palette .colors {
+  list-style-type: none;
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.palette .colors button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-color: white;
+  margin-left: 5.5px;
+  margin-top: 5.5px;
+}
+
+.palette .colors tr:nth-last-child(1) button {
+  margin-bottom: 5.5px;
+}
+
 /* fix padding on textpalette title */
 #text-palette .row.small {
     padding: 10px 10px 0px 10px;
@@ -87,49 +110,12 @@ button.icon {
 }
 
 #canvas {
-background-color: #fff;
-background-image:
-linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
-linear-gradient(#eee .1em, transparent .1em);
 background-size: 100% 1.2em;
 };
-
-#canvas p {
-  margin-top: 25%;
-  text-align: center;
-}
 
 #mainCanvas {
   background-color: #ffffff;
   position: absolute;
-}
-
-#sortCanvas {
-  background-color: #ffffff;
-  position: absolute;
-}
-
-#page-counter {
-  color: #ffffff;
-  background-color: #282828;
-  width: 80px;
-  height: 80px;
-  border: solid 2px  white;
-  border-radius: 60px;
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  text-align: center;
-}
-
-#page-counter span {
-  display: inline-block;
-  vertical-align: middle;
-  /* css trick: line-height bigger than div height to show centered :/ */
-  line-height: 80px;
-  font-family: Sans;
-  font-weight: bold;
-  font-size: 14px;
 }
 
 #wait {

@@ -2,6 +2,7 @@ define(function (require) {
     var activity = require("sugar-web/activity/activity");
     var datastore = require("sugar-web/datastore");
     var textpalette = require("textpalette");
+    var colorpalette = require("activity/colorpalette");
     //var menupalette = require("sugar-web/graphics/menupalette");
 
     // initialize canvas size
@@ -23,6 +24,9 @@ define(function (require) {
     console.log('LANG ' + lang);
 
     var fileExtension = '.jm';
+
+    var nodeColor = '#ffffff';
+    var textColor = '#000000';
 
     function _(text) {
         // this function add a fallback for the case of translation not found
@@ -115,8 +119,28 @@ define(function (require) {
         for (var i = 0; i < colorButtons.length; i++) {
             colorButtons[i].addEventListener('click', function(e) {
                 _jm.set_node_color(get_selected_nodeid(), null, this.value);
+                textColor = this.value;
             });
         };
+
+        // Color palette.
+
+        function onColorChange(event) {
+            if (get_selected_nodeid()) {
+                _jm.set_node_color(get_selected_nodeid(), event.detail.color, null);
+            };
+            nodeColor = event.detail.color;
+        }
+
+        var colorsButton = document.getElementById("colors-button");
+        colorPalette = new colorpalette.ColorPalette(colorsButton, undefined);
+        colorPalette.addEventListener('colorChange', onColorChange);
+
+        var colorInvoker = colorPalette.getPalette().querySelector(
+            '.palette-invoker');
+
+        // Select the last color of the palette.(white)
+        colorPalette.setColor(11);
 
         var addNodeButton = document.getElementById("add-node");
         var addImageNodeButton = document.getElementById("add-image-node");
@@ -132,6 +156,7 @@ define(function (require) {
             var nodeid = jsMind.util.uuid.newid();
             var topic = _('NodeText');
             var node = _jm.add_node(selected_node, nodeid, topic);
+            _jm.set_node_color(node.id, nodeColor, textColor);
         });
 
         addImageNodeButton.addEventListener('click', function (e) {
