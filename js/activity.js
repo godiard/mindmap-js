@@ -123,6 +123,58 @@ define(function (require) {
             });
         };
 
+        tp.incTextBtn.addEventListener('click', function(e) {
+            var node_id = get_selected_nodeid();
+            if (node_id) {
+                var node = _jm.get_node(node_id);
+                var size = node.data['font-size'] ?
+                        parseInt(node.data['font-size']) : 16;
+                if (size < 36) {
+                    size = size + Math.round(size / 4);
+                    _jm.set_node_font_style(node_id, size + 'px', null, null);
+                    editor.style.fontSize = size + 'px';
+                }
+            };
+        });
+
+        tp.decTextBtn.addEventListener('click', function(e) {
+            var node_id = get_selected_nodeid();
+            if (node_id) {
+                var node = _jm.get_node(node_id);
+                var size = node.data['font-size'] ?
+                        parseInt(node.data['font-size']) : 16;
+                if (size > 7) {
+                    size = size - Math.round(size / 4);
+                    _jm.set_node_font_style(node_id, size + 'px', null, null);
+                    editor.style.fontSize = size + 'px';
+                };
+            };
+        });
+
+        tp.boldTextBtn.addEventListener('click', function(e) {
+            var node_id = get_selected_nodeid();
+            if (node_id) {
+                var node = _jm.get_node(node_id);
+                var bold = node.data['font-weight'] == 'bold';
+                // switch bold status
+                var newWeight = bold ? 'normal' : 'bold';
+                _jm.set_node_font_style(node_id, null, newWeight, null);
+                editor.style.fontWeight = newWeight;
+            };
+        });
+
+        tp.italicTextBtn.addEventListener('click', function(e) {
+            var node_id = get_selected_nodeid();
+            if (node_id) {
+                var node = _jm.get_node(node_id);
+                var italic = node.data['font-style'] == 'italic';
+                // switch italic style
+                var newStyle = italic ? 'normal' : 'italic';
+                _jm.set_node_font_style(node_id, null, null, newStyle);
+                editor.style.fontStyle = newStyle;
+            };
+        });
+
         // Color palette.
 
         function onColorChange(event) {
