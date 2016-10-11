@@ -1510,6 +1510,7 @@
                         node.data['font-style'] = style;
                     }
                     this.view.reset_node_custom_style(node);
+                    this.view.update_node(node);
                     this.layout.layout();
                     this.view.show(false);
                 }
