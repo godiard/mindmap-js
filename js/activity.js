@@ -120,6 +120,7 @@ define(function (require) {
             colorButtons[i].addEventListener('click', function(e) {
                 _jm.set_node_color(get_selected_nodeid(), null, this.value);
                 textColor = this.value;
+                editor.style.color = this.value;
             });
         };
 
