@@ -55,6 +55,17 @@ define(function (require) {
             firstSeparator.style.display = 'none';
         };
 
+        // Here we register our callbacks for the lifecycle events we care about
+        document.addEventListener('deviceready', function () {
+            console.log('MINDMAP: ondeviceready');
+        }, false);
+        document.addEventListener('pause', function () {
+            console.log('MINDMAP: onpause--------------------');
+        }, false);
+        document.addEventListener('resume', function () {
+            console.log('MINDMAP: onresume--------------------');
+        }, false);
+
         // HERE GO YOUR CODE
 
         var mainCanvas = document.getElementById("jsmind_container");
@@ -212,35 +223,70 @@ define(function (require) {
             _jm.set_node_color(node.id, nodeColor, textColor);
         });
 
+        var imageFilereader = new FileReader();
+        imageFilereader.onloadend = (function () {
+            var selected_node = _jm.get_selected_node();
+            if(!selected_node){
+                selected_node = _jm.get_root();
+            }
+            var nodeid = jsMind.util.uuid.newid();
+            var topic = undefined;
+            var data = {
+                "background-image": imageFilereader.result,
+                "width": "100",
+                "height": "100"};
+            var node = _jm.add_node(selected_node, nodeid, topic, data);
+        });
+
         addImageNodeButton.addEventListener('click', function (e) {
-            imageChooser.focus();
-            imageChooser.click();
+            if (!navigator.camera) {
+                imageChooser.focus();
+                imageChooser.click();
+            } else {
+                // use cordova camera plugin
+                console.log("MINDMAP: use camera plugin");
+                function onCameraSuccess(dataURL) {
+                    var imageData = 'data:image/png;base64,' + dataURL;
+                    console.log('camera success: dataURL: ' + dataURL);
+                    var selected_node = _jm.get_selected_node();
+                    if(!selected_node){
+                        selected_node = _jm.get_root();
+                    }
+                    var nodeid = jsMind.util.uuid.newid();
+                    var topic = undefined;
+                    var data = {
+                        "background-image": imageData,
+                        "width": "100",
+                        "height": "100"};
+                    var node = _jm.add_node(selected_node, nodeid, topic, data);
+                }
+
+                function onCameraFail(message) {
+                    alert('MINDMAP: camera failed because: ' + message);
+                }
+
+                navigator.camera.getPicture(
+                    onCameraSuccess, onCameraFail, {quality: 50,
+                    destinationType: Camera.DestinationType.DATA_URL});
+
+            };
         });
 
         imageChooser.addEventListener('click', function (event) {
             this.value = null;
         });
 
-        imageChooser.addEventListener('change', function (event) {
-            var reader = new FileReader();
-            reader.onloadend = (function () {
-                var selected_node = _jm.get_selected_node();
-                if(!selected_node){
-                    selected_node = _jm.get_root();
-                }
-                var nodeid = jsMind.util.uuid.newid();
-                var topic = undefined;
-                var data = {
-                    "background-image": reader.result,
-                    "width": "100",
-                    "height": "100"};
-                var node = _jm.add_node(selected_node, nodeid, topic, data);
-            });
+        function addImageNodeFromFile(file) {
 
-            var file = imageChooser.files[0];
             if (file) {
-                reader.readAsDataURL(file);
+                imageFilereader.readAsDataURL(file);
             };
+
+        };
+
+        imageChooser.addEventListener('change', function (event) {
+            var file = imageChooser.files[0];
+            addImageNodeFromFile(file)
         }, false);
 
         // load mindmap files
