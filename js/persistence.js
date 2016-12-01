@@ -94,6 +94,11 @@ define(function (require) {
             readAs(fileName, readAsType.ARRAY_BUFFER, callback)
         };
 
+        this.readAsBinaryString = function(fileName, callback) {
+            // read a file from disk and send to callback as text
+            readAs(fileName, readAsType.BINARY_STRING, callback)
+        };
+
         this.readAsText = function(fileName, callback) {
             // read a file from disk and send to callback as text
             readAs(fileName, readAsType.TEXT, callback)
