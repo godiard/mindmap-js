@@ -26,6 +26,10 @@ body {
   background-image: url(../icons/image-node.svg);
 }
 
+#rotate-image-node {
+  background-image: url(../icons/object_rotate_right.svg);
+}
+
 #zoom-in-button {
   background-image: url(../icons/zoom-in.svg);
 }

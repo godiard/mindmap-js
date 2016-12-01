@@ -112,7 +112,11 @@ define(function (require) {
         _jm.view.add_event(this,'mousedown',function(e) {
             var node_id = get_selected_nodeid();
             if (node_id != null) {
-                tp.setText(_jm.get_node(node_id).topic);
+                var node = _jm.get_node(node_id);
+                tp.setText(node.topic);
+                rotateImageButton.disabled =
+                    (node.data['background-image'] == undefined);
+
             }
         });
 
@@ -433,6 +437,26 @@ define(function (require) {
             } else {
                 this.disabled = true;
             };
+        });
+
+        var rotateImageButton = document.getElementById("rotate-image-node");
+        rotateImageButton.addEventListener('click', function (e) {
+            var selected_id = get_selected_nodeid();
+            if(!selected_id){
+                //prompt_info('please select a node first.');
+                return;
+            }
+            // first load the actual value and add 90 deg
+            var angle = 0;
+            var node = _jm.get_node(selected_id);
+            if (node.data['angle'] != undefined) {
+                angle = node.data['angle'];
+            }
+            angle = angle + 90;
+            if (angle == 360) {
+                angle = 0;
+            }
+            _jm.set_node_background_angle(selected_id, angle);
         });
 
         var deleteButton = document.getElementById("delete-button");
