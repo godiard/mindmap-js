@@ -224,7 +224,12 @@ define(function (require) {
         });
 
         var imageFilereader = new FileReader();
+
         imageFilereader.onloadend = (function () {
+            createImageNode(imageFilereader.result);
+        });
+
+        function createImageNode(imageData) {
             var selected_node = _jm.get_selected_node();
             if(!selected_node){
                 selected_node = _jm.get_root();
@@ -232,43 +237,37 @@ define(function (require) {
             var nodeid = jsMind.util.uuid.newid();
             var topic = undefined;
             var data = {
-                "background-image": imageFilereader.result,
+                "background-image": imageData,
                 "width": "100",
                 "height": "100"};
             var node = _jm.add_node(selected_node, nodeid, topic, data);
-        });
+        };
 
         addImageNodeButton.addEventListener('click', function (e) {
             if (!navigator.camera) {
                 imageChooser.focus();
                 imageChooser.click();
             } else {
-                // use cordova camera plugin
-                console.log("MINDMAP: use camera plugin");
-                function onCameraSuccess(dataURL) {
-                    var imageData = 'data:image/png;base64,' + dataURL;
-                    console.log('camera success: dataURL: ' + dataURL);
-                    var selected_node = _jm.get_selected_node();
-                    if(!selected_node){
-                        selected_node = _jm.get_root();
-                    }
-                    var nodeid = jsMind.util.uuid.newid();
-                    var topic = undefined;
-                    var data = {
-                        "background-image": imageData,
-                        "width": "100",
-                        "height": "100"};
-                    var node = _jm.add_node(selected_node, nodeid, topic, data);
+                // use nativecamera plugin
+                console.log("MINDMAP: use nativecamera plugin");
+                function onCameraSuccess(fileURI) {
+                    console.log('camera success: fileURI: ' + fileURI);
+                    // nativecamera returns a complete uri like
+                    // file:///storage/emulated/0/Android/data/com.trinmio.MindMap/cache/Pic-1112016112116.jpg
+                    // we need only the part inside the app dir
+                    var fileName = fileURI.substr(fileURI.indexOf('cache'));
+                    cordobaIO.readAsDataURL(fileName, function(imageData) {
+                        createImageNode(imageData);
+                    });
                 }
 
                 function onCameraFail(message) {
                     alert('MINDMAP: camera failed because: ' + message);
                 }
-
+                // native camera plugin only supports destination FILE_URI
                 navigator.camera.getPicture(
                     onCameraSuccess, onCameraFail, {quality: 50,
-                    destinationType: Camera.DestinationType.DATA_URL});
-
+                    destinationType: Camera.DestinationType.FILE_URI});
             };
         });
 
@@ -276,17 +275,11 @@ define(function (require) {
             this.value = null;
         });
 
-        function addImageNodeFromFile(file) {
-
+        imageChooser.addEventListener('change', function (event) {
+            var file = imageChooser.files[0];
             if (file) {
                 imageFilereader.readAsDataURL(file);
             };
-
-        };
-
-        imageChooser.addEventListener('change', function (event) {
-            var file = imageChooser.files[0];
-            addImageNodeFromFile(file)
         }, false);
 
         // load mindmap files
