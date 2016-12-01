@@ -34,6 +34,7 @@
     var $c = function(tag){return $d.createElement(tag);};
     var $t = function(n,t){if(n.hasChildNodes()){n.firstChild.nodeValue = t;}else{n.appendChild($d.createTextNode(t));}};
     var $h = function(n,t){n.innerHTML = t;};
+    if(typeof String.prototype.startsWith != 'function'){String.prototype.startsWith=function(p){return this.slice(0,p.length)===p;};}
 
     var DEFAULT_OPTIONS = {
         container : '',   // id of the container
@@ -795,13 +796,10 @@
             _load_attributes:function(xml_node){
                 var children = xml_node.childNodes;
                 var attr = null;
-                var attr_data = null;
+                var attr_data = {};
                 for(var i=0;i<children.length;i++){
                     attr = children[i];
                     if(attr.nodeType == 1 && attr.tagName === 'attribute'){
-                        if(attr_data == null){
-                            attr_data = {};
-                        }
                         attr_data[attr.getAttribute('NAME')] = attr.getAttribute('VALUE');
                     }
                 }
@@ -877,8 +875,12 @@
                     if(xhr.readyState == 4){
                         if(xhr.status == 200 || xhr.status == 0){
                             if(typeof callback === 'function'){
-                                var data = eval('('+xhr.responseText+')');
-                                callback(data);
+                                var data = jm.util.json.string2json(xhr.responseText);
+                                if(data != null){
+                                    callback(data);
+                                }else{
+                                    callback(xhr.responseText);
+                                }
                             }
                         }else{
                             if(typeof fail_callback === 'function'){
@@ -1177,8 +1179,10 @@
             }
             if(!!node){
                 if(node.isroot){return;}
+                this.view.save_location(node);
                 this.layout.toggle_node(node);
                 this.view.relayout();
+                this.view.restore_location(node);
             }else{
                 logger.error('the node can not be found.');
             }
@@ -1190,8 +1194,10 @@
             }
             if(!!node){
                 if(node.isroot){return;}
+                this.view.save_location(node);
                 this.layout.expand_node(node);
                 this.view.relayout();
+                this.view.restore_location(node);
             }else{
                 logger.error('the node can not be found.');
             }
@@ -1203,8 +1209,10 @@
             }
             if(!!node){
                 if(node.isroot){return;}
+                this.view.save_location(node);
                 this.layout.collapse_node(node);
                 this.view.relayout();
+                this.view.restore_location(node);
             }else{
                 logger.error('the node can not be found.');
             }
@@ -1338,10 +1346,13 @@
                     }
                     var nodeid = node.id;
                     var parentid = node.parent.id;
+                    var parent_node = this.get_node(parentid);
+                    this.view.save_location(parent_node);
                     this.view.remove_node(node);
                     this.mind.remove_node(node);
                     this.layout.layout();
                     this.view.show(false);
+                    this.view.restore_location(parent_node);
                     this.invoke_event_handle(jm.event_type.edit,{evt:'remove_node',data:[nodeid],node:parentid});
                 }else{
                     logger.error('fail, node can not be found');
@@ -1519,6 +1530,31 @@
                 return null;
             }
         },
+
+        set_node_background_image:function(nodeid, image, width, height){
+            if(this.get_editable()){
+                var node = this.mind.get_node(nodeid);
+                if(!!node){
+                    if(!!image){
+                        node.data['background-image'] = image;
+                    }
+                    if(!!width){
+                        node.data['width'] = width;
+                    }
+                    if(!!height){
+                        node.data['height'] = height;
+                    }
+                    this.view.reset_node_custom_style(node);
+                    this.view.update_node(node);
+                    this.layout.layout();
+                    this.view.show(false);
+                }
+            }else{
+                logger.error('fail, this mind map is not editable');
+                return null;
+            }
+        },
+
 
         resize:function(){
             this.view.resize();
@@ -1766,14 +1802,12 @@
             while(i--){
                 node = nodes[i];
                 node._data.layout.offset_y += middle_height;
-                //logger.debug(node._data.layout.offset_y);
             }
             return total_height;
         },
 
         // layout the y axis only, for collapse/expand a node
         _layout_offset_subnodes_height:function(nodes){
-            return this._layout_offset_subnodes(nodes);
             var total_height = 0;
             var nodes_count = nodes.length;
             var i = nodes_count;
@@ -1919,14 +1953,12 @@
         },
 
         expand_node:function(node){
-            //logger.debug('expand');
             node.expanded = true;
             this.part_layout(node);
             this.set_visible(node.children,true);
         },
 
         collapse_node:function(node){
-            //logger.debug('collapse');
             node.expanded = false;
             this.part_layout(node);
             this.set_visible(node.children,false);
@@ -1966,7 +1998,6 @@
         },
 
         part_layout:function(node){
-            //logger.debug('part_layout');
             var root = this.jm.mind.root;
             if(!!root){
                 var root_layout_data = root._data.layout;
@@ -2194,47 +2225,8 @@
             }
             d.setAttribute('nodeid',node.id);
             d.style.visibility='hidden';
-            if('width' in node.data){
-                d.style.width = node.data.width+'px';
-            }
-            if('height' in node.data){
-                d.style.height = node.data.height+'px';
-            }
+            this._reset_node_custom_style(d, node.data);
 
-            if('font-size' in node.data){
-                d.style.fontSize = node.data['font-size'];
-            }
-            if('font-weight' in node.data){
-                d.style.fontWeight = node.data['font-weight'];
-            }
-            if('font-style' in node.data){
-                d.style.fontStyle = node.data['font-style'];
-            }
-
-            if ('background-image' in node.data) {
-                var backgroundImage = node.data['background-image'];
-                if (backgroundImage.startsWith('data') && node.data.width && node.data.height) {
-                    var img = new Image();
-
-                    img.onload = function() {
-                        var c = document.createElement('canvas');
-                        c.width = d.clientWidth;
-                        c.height = d.clientHeight;
-                        var img = this;
-                        if(c.getContext) {
-                            var ctx = c.getContext('2d');
-                            ctx.drawImage(img, 2, 2, d.clientWidth, d.clientHeight);
-                            var scaledImageData = c.toDataURL();
-                            d.style.backgroundImage='url('+scaledImageData+')';
-                        }
-                    };
-                    img.src = backgroundImage;
-
-                } else {
-                    d.style.backgroundImage='url('+backgroundImage+')';
-                }
-                d.style.backgroundSize='99%';
-            }
             parent_node.appendChild(d);
             view_data.element = d;
         },
@@ -2313,7 +2305,9 @@
             var view_data = node._data.view;
             var element = view_data.element;
             var topic = node.topic;
+            var ncs = getComputedStyle(element);
             this.e_editor.value = topic;
+            this.e_editor.style.width = (element.clientWidth-parseInt(ncs.getPropertyValue('padding-left'))-parseInt(ncs.getPropertyValue('padding-right')))+'px';
             element.innerHTML = '';
             element.appendChild(this.e_editor);
             element.style.zIndex = 5;
@@ -2418,6 +2412,20 @@
             this._show();
         },
 
+        save_location:function(node){
+            var vd = node._data.view;
+            vd._saved_location={
+                x:parseInt(vd.element.style.left)-this.e_panel.scrollLeft,
+                y:parseInt(vd.element.style.top)-this.e_panel.scrollTop,
+            };
+        },
+        
+        restore_location:function(node){
+            var vd = node._data.view;
+            this.e_panel.scrollLeft = parseInt(vd.element.style.left)-vd._saved_location.x;
+            this.e_panel.scrollTop = parseInt(vd.element.style.top)-vd._saved_location.y;
+        },
+
         clear_nodes:function(){
             var mind = this.jm.mind;
             if(mind == null){
@@ -2479,24 +2487,54 @@
         },
 
         reset_node_custom_style:function(node){
-            var node_element = node._data.view.element;
-            if('background-color' in node.data){
-                node_element.style.backgroundColor = node.data['background-color'];
+            this._reset_node_custom_style(node._data.view.element, node.data);
+        },
+
+        _reset_node_custom_style:function(node_element, node_data){
+            if('background-color' in node_data){
+                node_element.style.backgroundColor = node_data['background-color'];
             }
-            if('foreground-color' in node.data){
-                node_element.style.color = node.data['foreground-color'];
+            if('foreground-color' in node_data){
+                node_element.style.color = node_data['foreground-color'];
             }
-            if('background-image' in node.data){
-                node_element.style.backgroundImage = node.data['background-image'];
+            if('width' in node_data){
+                node_element.style.width = node_data['width']+'px';
             }
-            if('font-size' in node.data){
-                node_element.style.fontSize = node.data['font-size'];
+            if('height' in node_data){
+                node_element.style.height = node_data['height']+'px';
             }
-            if('font-weight' in node.data){
-                node_element.style.fontWeight = node.data['font-weight'];
+            if('font-size' in node_data){
+                node_element.style.fontSize = node_data['font-size']+'px';
             }
-            if('font-style' in node.data){
-                node_element.style.fontStyle = node.data['font-style'];
+            if('font-weight' in node_data){
+                node_element.style.fontWeight = node_data['font-weight'];
+            }
+            if('font-style' in node_data){
+                node_element.style.fontStyle = node_data['font-style'];
+            }
+            if('background-image' in node_data) {
+                var backgroundImage = node_data['background-image'];
+                if (backgroundImage.startsWith('data') && node_data['width'] && node_data['height']) {
+                    var img = new Image();
+
+                    img.onload = function() {
+                        var c = $c('canvas');
+                        c.width = node_element.clientWidth;
+                        c.height = node_element.clientHeight;
+                        var img = this;
+                        if(c.getContext) {
+                            var ctx = c.getContext('2d');
+                            ctx.drawImage(img, 2, 2, node_element.clientWidth, node_element.clientHeight);
+                            var scaledImageData = c.toDataURL();
+                            node_element.style.backgroundImage='url('+scaledImageData+')';
+                        }
+                    };
+                    img.src = backgroundImage;
+
+                } else {
+                    node_element.style.backgroundImage='url('+backgroundImage+')';
+                }
+                node_element.style.backgroundSize='99%';
             }
         },
 
