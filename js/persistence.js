@@ -32,6 +32,13 @@ define(function (require) {
 
     function CordobaIO(parent) {
 
+        var readAsType = {
+            ARRAY_BUFFER: 0,
+            BINARY_STRING: 1,
+            DATA_URL: 2,
+            TEXT: 3
+        };
+
         this.save = function(content, fileName) {
             // save a file to disk
 
@@ -83,31 +90,21 @@ define(function (require) {
         };
 
         this.read = function(fileName, callback) {
-            // read a file from disk
-
-            function onFileResolved(entry) {
-
-                entry.file(function(file) {
-                    var reader = new FileReader();
-                    reader.onloadend = function(e) {
-                        console.log("Read file: " + fileName);
-                        callback(e.target.result);
-                    };
-                    reader.readAsArrayBuffer(file);
-                });
-            };
-
-            function onFsResolved(fs) {
-                window.resolveLocalFileSystemURL(
-                    cordova.file.externalApplicationStorageDirectory + fileName,
-                    onFileResolved, errorHandler);
-            };
-
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
-                onFsResolved, errorHandler);
+            // read a file from disk and send to callback as a ArrayBuffer
+            readAs(fileName, readAsType.ARRAY_BUFFER, callback)
         };
 
         this.readAsText = function(fileName, callback) {
+            // read a file from disk and send to callback as text
+            readAs(fileName, readAsType.TEXT, callback)
+        };
+
+        this.readAsDataURL = function(fileName, callback) {
+            // read a file from disk and send to callback as text
+            readAs(fileName, readAsType.DATA_URL, callback)
+        };
+
+        readAs = function(fileName, readAs, callback) {
             // read a file from disk
 
             function onFileResolved(entry) {
@@ -118,7 +115,22 @@ define(function (require) {
                         console.log("Read file: " + fileName);
                         callback(e.target.result);
                     };
-                    reader.readAsText(file);
+
+                    switch (readAs) {
+                    case readAsType.ARRAY_BUFFER:
+                        reader.readAsArrayBuffer(file);
+                        break;
+                    case readAsType.BINARY_STRING:
+                        reader.readAsBinaryString(file);
+                        break;
+                    case readAsType.DATA_URL:
+                        reader.readAsDataURL(file);
+                        break;
+                    case readAsType.TEXT:
+                        reader.readAsText(file);
+                        break;
+                    };
+
                 });
             };
 
